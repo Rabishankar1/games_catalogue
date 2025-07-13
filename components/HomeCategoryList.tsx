@@ -186,19 +186,20 @@ const HomeCategoryList = ({
   if (isEmpty) {
     if (!expandedVendor && !expandedCategory && !expandedSort) {
       return null;
-    } else {
-      return (
-        <div className="text-center text-white">
-          No games found{" "}
-          {expandedCategory
-            ? "in this category."
-            : expandedVendor
-            ? "for this vendor."
-            : "."}
-          .
-        </div>
-      );
     }
+    // else {
+    //   return (
+    //     <div className="text-center text-white">
+    //       No games found{" "}
+    //       {expandedCategory
+    //         ? "in this category."
+    //         : expandedVendor
+    //         ? "for this vendor."
+    //         : "."}
+    //       .
+    //     </div>
+    //   );
+    // }
   }
 
   return (
@@ -208,182 +209,200 @@ const HomeCategoryList = ({
           <div className={styles.loading_dots}></div>
         </div>
       )}
-      {/* {isError && <p>Error loading games.</p>} */}
-      <div className="each-category-container">
-        <div className="flex  mb-2 w-full justify-between items-center">
-          <div className="flex gap-2">
-            <Image
-              src={returnImageUrl(
-                category ||
-                  (vendor === "JackpotOriginal" ? "JackpotLogo" : vendor) ||
-                  sort ||
-                  "All Games"
-              )}
-              alt="category"
-              width={24}
-              height={24}
-              className="w-6 h-6"
-            />
-            <div className="font-bold text-xl">
-              {returnSectionName(
-                expandedVendor ||
-                  expandedCategory ||
-                  expandedSort ||
+      {isEmpty ? (
+        isError ? (
+          <p>Error loading games.</p>
+        ) : (
+          <div className="text-center text-white">
+            No games found{" "}
+            {expandedCategory
+              ? "in this category."
+              : expandedVendor
+              ? "for this vendor."
+              : "."}
+            .
+          </div>
+        )
+      ) : (
+        <div className="each-category-container">
+          <div className="flex  mb-2 w-full justify-between items-center">
+            <div className="flex gap-2">
+              <Image
+                src={returnImageUrl(
                   category ||
-                  vendor ||
-                  sort ||
-                  "All Games"
+                    (vendor === "JackpotOriginal" ? "JackpotLogo" : vendor) ||
+                    sort ||
+                    "All Games"
+                )}
+                alt="category"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
+              <div className="font-bold text-xl">
+                {returnSectionName(
+                  expandedVendor ||
+                    expandedCategory ||
+                    expandedSort ||
+                    category ||
+                    vendor ||
+                    sort ||
+                    "All Games"
+                )}
+              </div>
+            </div>
+            <div className="flex m-2">
+              {(expandedVendor || expandedCategory || expandedSort) && (
+                <>
+                  <DropDown
+                    buttonText={"Filter"}
+                    items={[
+                      {
+                        id: "asc",
+                        name: "Ascending",
+                        action: () => setOrder("asc"),
+                        val: "asc",
+                      },
+                      {
+                        id: "desc",
+                        name: "Descending",
+                        action: () => setOrder("desc"),
+                        val: "desc",
+                      },
+                    ]}
+                    selectedVal={order}
+                  />
+
+                  <CustomButton
+                    onClick={() => {
+                      setExpandedVendor(undefined);
+                      setExpandedCategory(undefined);
+                      setExpandedSort(undefined);
+                      setLimit(10);
+                      setSearchQuery("");
+                    }}
+                  >
+                    Go Back
+                  </CustomButton>
+                </>
               )}
+              {!searchOnly &&
+                !expandedCategory &&
+                !expandedVendor &&
+                !expandedSort && (
+                  <>
+                    <CustomButton
+                      onClick={() => {
+                        if (category) {
+                          setExpandedCategory(category);
+                          setLimit(100);
+                        } else if (vendor) {
+                          setExpandedVendor(vendor);
+                          setLimit(100);
+                        } else if (sort) {
+                          setExpandedSort(sort);
+                          setLimit(100);
+                        }
+                      }}
+                    >
+                      View All
+                    </CustomButton>
+                    <CustomButton
+                      onClick={() => scroll("left")}
+                      className="rounded-r-0"
+                    >
+                      {!showLeftBlur ? (
+                        <img
+                          src="prev-disabled.svg"
+                          className="text-white w-5 h-5"
+                        />
+                      ) : (
+                        <img
+                          src="next.svg"
+                          className="text-white w-5 h-5 rotate-180"
+                        />
+                      )}
+                    </CustomButton>
+                    <CustomButton
+                      onClick={() => scroll("right")}
+                      className="rounded-l-0"
+                    >
+                      {!showRightBlur ? (
+                        <img
+                          src="prev-disabled.svg"
+                          className="text-white w-5 h-5 rotate-180"
+                        />
+                      ) : (
+                        <img src="next.svg" className="text-white w-5 h-5" />
+                      )}
+                    </CustomButton>
+                  </>
+                )}
             </div>
           </div>
-          <div className="flex m-2">
-            {(expandedVendor || expandedCategory || expandedSort) && (
-              <>
-                <DropDown
-                  buttonText={"Filter"}
-                  items={[
-                    {
-                      id: "asc",
-                      name: "Ascending",
-                      action: () => setOrder("asc"),
-                      val: "asc",
-                    },
-                    {
-                      id: "desc",
-                      name: "Descending",
-                      action: () => setOrder("desc"),
-                      val: "desc",
-                    },
-                  ]}
-                  selectedVal={order}
-                />
+          <div className="scrolling-list relative">
+            <div
+              className={`flex ${
+                searchOnly || expandedCategory || expandedVendor || expandedSort
+                  ? "flex-wrap justify-center overflow-y-auto max-h-[80vh]"
+                  : "overflow-x-auto"
+              } gap-4 no-scrollbar scroll-smooth`}
+              ref={scrollRef}
+            >
+              {items?.map((game: Game) =>
+                game ? <GameCard key={game.slug} game={game} /> : null
+              )}
+            </div>
 
-                <CustomButton
-                  onClick={() => {
-                    setExpandedVendor(undefined);
-                    setExpandedCategory(undefined);
-                    setExpandedSort(undefined);
-                    setLimit(10);
-                    setSearchQuery("");
-                  }}
-                >
-                  Go Back
-                </CustomButton>
-              </>
-            )}
             {!searchOnly &&
               !expandedCategory &&
               !expandedVendor &&
               !expandedSort && (
                 <>
-                  <CustomButton
-                    onClick={() => {
-                      if (category) {
-                        setExpandedCategory(category);
-                        setLimit(100);
-                      } else if (vendor) {
-                        setExpandedVendor(vendor);
-                        setLimit(100);
-                      } else if (sort) {
-                        setExpandedSort(sort);
-                        setLimit(100);
-                      }
-                    }}
-                  >
-                    View All
-                  </CustomButton>
-                  <CustomButton
-                    onClick={() => scroll("left")}
-                    className="rounded-r-0"
-                  >
-                    {!showLeftBlur ? (
-                      <img
-                        src="prev-disabled.svg"
-                        className="text-white w-5 h-5"
-                      />
-                    ) : (
-                      <img
-                        src="next.svg"
-                        className="text-white w-5 h-5 rotate-180"
-                      />
-                    )}
-                  </CustomButton>
-                  <CustomButton
-                    onClick={() => scroll("right")}
-                    className="rounded-l-0"
-                  >
-                    {!showRightBlur ? (
-                      <img
-                        src="prev-disabled.svg"
-                        className="text-white w-5 h-5 rotate-180"
-                      />
-                    ) : (
-                      <img src="next.svg" className="text-white w-5 h-5" />
-                    )}
-                  </CustomButton>
+                  {/* Horizontal mode: Right Blur */}
+                  {hasNextPageRef.current && showRightBlur && (
+                    <div className="absolute right-[-2px] top-0 h-full w-10 bg-gradient-to-l from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
+                  )}
+                  {/* Horizontal mode: Left Blur */}
+                  {showLeftBlur && (
+                    <div className="absolute left-[-2px] top-0 h-full w-10 bg-gradient-to-r from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
+                  )}
                 </>
               )}
-          </div>
-        </div>
-        <div className="scrolling-list relative">
-          <div
-            className={`flex ${
-              searchOnly || expandedCategory || expandedVendor || expandedSort
-                ? "flex-wrap justify-center overflow-y-auto max-h-[80vh]"
-                : "overflow-x-auto"
-            } gap-4 no-scrollbar scroll-smooth`}
-            ref={scrollRef}
-          >
-            {items?.map((game: Game) =>
-              game ? <GameCard key={game.slug} game={game} /> : null
-            )}
-          </div>
 
-          {!searchOnly &&
-            !expandedCategory &&
-            !expandedVendor &&
-            !expandedSort && (
+            {(searchOnly ||
+              expandedCategory ||
+              expandedVendor ||
+              expandedSort) && (
               <>
-                {/* Horizontal mode: Right Blur */}
-                {hasNextPageRef.current && showRightBlur && (
-                  <div className="absolute right-[-2px] top-0 h-full w-10 bg-gradient-to-l from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
-                )}
-                {/* Horizontal mode: Left Blur */}
+                {/* Vertical mode: Top Blur */}
                 {showLeftBlur && (
-                  <div className="absolute left-[-2px] top-0 h-full w-10 bg-gradient-to-r from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
+                  <div className="absolute top-[-2px] left-0 w-full h-6 bg-gradient-to-b from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
+                )}
+                {/* Vertical mode: Bottom Blur */}
+                {hasNextPageRef.current && showRightBlur && (
+                  <div className="absolute bottom-[-2px] left-0 w-full h-6 bg-gradient-to-t from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
                 )}
               </>
             )}
 
-          {(searchOnly ||
-            expandedCategory ||
-            expandedVendor ||
-            expandedSort) && (
-            <>
-              {/* Vertical mode: Top Blur */}
-              {showLeftBlur && (
-                <div className="absolute top-[-2px] left-0 w-full h-6 bg-gradient-to-b from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
-              )}
-              {/* Vertical mode: Bottom Blur */}
-              {hasNextPageRef.current && showRightBlur && (
-                <div className="absolute bottom-[-2px] left-0 w-full h-6 bg-gradient-to-t from-[#25222D] via-[#1e1e1e]/90 to-transparent pointer-events-none z-10" />
-              )}
-            </>
-          )}
-
-          {!isLoading && (isFetchingRef.current || isFetchingNextPage) && (
-            <div
-              className={`absolute ${
-                searchOnly || expandedCategory || expandedVendor || expandedSort
-                  ? "bottom-4 left-1/2 -translate-x-1/2"
-                  : "right-0 top-1/2 -translate-y-1/2"
-              } z-20`}
-            >
-              <div className={styles.loading_dots}></div>
-            </div>
-          )}
+            {!isLoading && (isFetchingRef.current || isFetchingNextPage) && (
+              <div
+                className={`absolute ${
+                  searchOnly ||
+                  expandedCategory ||
+                  expandedVendor ||
+                  expandedSort
+                    ? "bottom-4 left-1/2 -translate-x-1/2"
+                    : "right-0 top-1/2 -translate-y-1/2"
+                } z-20`}
+              >
+                <div className={styles.loading_dots}></div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
