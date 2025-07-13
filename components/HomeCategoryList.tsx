@@ -184,7 +184,21 @@ const HomeCategoryList = ({
     );
   }
   if (isEmpty) {
-    return null;
+    if (!expandedVendor && !expandedCategory && !expandedSort) {
+      return null;
+    } else {
+      return (
+        <div className="text-center text-white">
+          No games found{" "}
+          {expandedCategory
+            ? "in this category."
+            : expandedVendor
+            ? "for this vendor."
+            : "."}
+          .
+        </div>
+      );
+    }
   }
 
   return (
