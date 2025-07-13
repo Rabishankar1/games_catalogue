@@ -66,7 +66,7 @@ const DropDown = ({
       {showDropdown && (
         <div
           id="dropdown"
-          className="absolute z-10 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700"
+          className="absolute z-999 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700"
         >
           <ul
             className="py-2 text-sm text-gray-700 dark:text-gray-200"
