@@ -61,7 +61,6 @@ const HomeCategoryList = ({
         query: searchQuery,
         limit: limit || 10,
         offset: pageParam * (limit || 10),
-        // sort: fixedSort || sort,
         sort,
         order,
         vendor: vendor ? [vendor] : [],
@@ -187,19 +186,6 @@ const HomeCategoryList = ({
     if (!expandedVendor && !expandedCategory && !expandedSort) {
       return null;
     }
-    // else {
-    //   return (
-    //     <div className="text-center text-white">
-    //       No games found{" "}
-    //       {expandedCategory
-    //         ? "in this category."
-    //         : expandedVendor
-    //         ? "for this vendor."
-    //         : "."}
-    //       .
-    //     </div>
-    //   );
-    // }
   }
 
   return (
